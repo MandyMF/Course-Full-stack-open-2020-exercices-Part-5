@@ -5,28 +5,31 @@ import loginService from "./services/login"
 
 const App = () => {
 	const [blogs, setBlogs] = useState([])
+	const [title, setTitle] = useState("")
+	const [author, setAuthor] = useState("")
+	const [url, setUrl] = useState("")
+
 	const [user, setUser] = useState(null)
 	const [username, setUsername] = useState("")
 	const [password, setPassword] = useState("")
 
-  const getData = async () =>{
-    const blogs = await blogService.getAll()
-    setBlogs(blogs)
-  }
+	const getData = async () => {
+		const blogs = await blogService.getAll()
+		setBlogs(blogs)
+	}
 
 	useEffect(() => {
-    getData()
-  }, [])
-  
-  useEffect(()=>{
-    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
-    if(loggedUserJSON )
-    {
-      const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      blogService.setToken(user.token)
-    }
-  }, [])
+		getData()
+	}, [])
+
+	useEffect(() => {
+		const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser")
+		if (loggedUserJSON) {
+			const user = JSON.parse(loggedUserJSON)
+			setUser(user)
+			blogService.setToken(user.token)
+		}
+	}, [])
 
 	const handleLogin = async (event) => {
 		event.preventDefault()
@@ -35,22 +38,44 @@ const App = () => {
 			const user = await loginService.login({
 				username,
 				password,
-      })
-      
-      window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
-			blogService.setToken(user)
+			})
+
+			window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user))
+			blogService.setToken(user.token)
 			setUser(user)
-			setUsername("")
-			setPassword("")
+			setUsername('')
+			setPassword('')
 		} catch (exception) {
 			console.error("ERROR LOGIN IN")
 		}
-  }
-  
-  const handleLogout = () =>{
-    window.localStorage.removeItem('loggedBlogappUser')
+	}
+
+	const handleLogout = () => {
+		window.localStorage.removeItem("loggedBlogappUser")
     setUser(null)
-  }
+	}
+
+	const handleCreateBlog = async (event) => {
+		event.preventDefault()
+
+		try {
+      const newblog = await blogService.createBlog(
+        {
+          title,
+          author,
+          url,
+        }
+      )
+
+      setBlogs(blogs.concat(newblog))
+      setTitle('')
+      setAuthor('')
+      setUrl('')
+
+		} catch (exception) {
+			console.error("ERROR CREATING BLOG")
+		}
+	}
 
 	const loginForm = () => (
 		<>
@@ -79,13 +104,50 @@ const App = () => {
 		</>
 	)
 
+	const createNewBlogForm = () => (
+		<div>
+			<h1>create new</h1>
+			<form onSubmit={handleCreateBlog}>
+				<div>
+					title:
+					<input
+						value={title}
+						name="Title"
+						onChange={({ target }) => setTitle(target.value)}
+					></input>
+				</div>
+				<div>
+					author:
+					<input
+						value={author}
+						name="Author"
+						onChange={({ target }) => setAuthor(target.value)}
+					></input>
+				</div>
+				<div>
+					url:
+					<input
+						value={url}
+						name="Url"
+						onChange={({ target }) => setUrl(target.value)}
+					></input>
+				</div>
+
+				<button type="submit">create</button>
+			</form>
+		</div>
+	)
+
 	const blogList = () => (
 		<>
 			<h2>blogs</h2>
 
 			<div>
-				<p>{user.name} logged in <button onClick={handleLogout}> logout </button></p>
+				<p>
+					{user.name} logged in <button onClick={handleLogout}> logout </button>
+				</p>
 			</div>
+			{createNewBlogForm()}
 
 			{blogs.map((blog) => (
 				<Blog key={blog.id} blog={blog} />
