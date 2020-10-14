@@ -8,8 +8,8 @@ import BlogForm from './components/BlogForm'
 
 const App = () => {
 	const [blogs, setBlogs] = useState([])
-  const [loginNotification, setLoginNotification] = useState(<></>)
-  const [createNotification, setCreateNotification] = useState(<></>)
+  const [notification, setNotification] = useState({message:'', success:false, display:false})
+	const [blogsSorted, setBlogsSorted] = useState([])
 
 	const [user, setUser] = useState(null)
 	const [username, setUsername] = useState("")
@@ -21,6 +21,12 @@ const App = () => {
 		const blogs = await blogService.getAll()
 		setBlogs(blogs)
 	}
+
+	useEffect(()=>{
+		setBlogsSorted(blogs.sort((blog1, blog2)=>{
+			return blog2.likes - blog1.likes
+		}))
+	}, [blogs])
 
 	useEffect(() => {
 		getData()
@@ -34,6 +40,7 @@ const App = () => {
 			blogService.setToken(user.token)
 		}
 	}, [])
+
 
 	const handleLogin = async (event) => {
 		event.preventDefault()
@@ -49,11 +56,12 @@ const App = () => {
 			setUser(user)
 			setUsername('')
 			setPassword('')
+			setNotification({success:false, display:false, message:"" })
 		} catch (exception) {
       console.error("ERROR ON LOGIN IN")
-      setLoginNotification(<Notification success={false} message="wrong username or password" />)
+      setNotification({success:false, display:true, message:"wrong username or password" })
       setTimeout(() => {
-        setLoginNotification(<></>)
+        setNotification({success:false, display:false, message:"" })
       }, 5000)
 		}
 	}
@@ -64,8 +72,28 @@ const App = () => {
 	}
 
 	const handleLikeBlog =  async blog =>{
-		await blogService.likeBlog(blog)
-		getData()
+		try 
+		{
+			await blogService.likeBlog(blog)
+			
+			setBlogs(blogs.map(item => {
+				if(item.id === blog.id)
+				{
+					const likedBlog = {...item}
+					likedBlog.likes += 1
+					return likedBlog
+				}
+				return item
+			}))
+		}
+		catch(exception){
+			setNotification({success:false, display:true, message:`blog ${blog.title} by ${blog.author} could not be liked`})
+
+			setTimeout(()=>{
+				setNotification({success:false, display:false, message:"" })
+			}, 5000)
+		}
+		
 	}
 
 	const CreateBlog = async (blogToCreate) => {
@@ -79,18 +107,18 @@ const App = () => {
 			blogFormRef.current.toggleVisibility()
       setBlogs(blogs.concat(newblog))
 
-      setCreateNotification(<Notification success={true} message={`a new blog ${blogToCreate.title} by ${blogToCreate.author} added`}/>)
+      setNotification({success:true, message:`a new blog ${blogToCreate.title} by ${blogToCreate.author} added`, display:true})
       setTimeout(()=>{
-        setCreateNotification(<></>)
+        setNotification({success:false, display:false, message:"" })
       }, 5000)
 
 		} catch (exception) {
       console.error("ERROR CREATING BLOG")
       
-      setCreateNotification(<Notification success={false} message={`a new blog ${blogToCreate.title} by ${blogToCreate.author} could not be added`}/>)
+      setNotification({success:false, message:`a new blog ${blogToCreate.title} by ${blogToCreate.author} could not be added`, display:true})
 
       setTimeout(()=>{
-        setCreateNotification(<></>)
+        setNotification({success:false, display:false, message:"" })
       }, 5000)
 		}
 	}
@@ -98,7 +126,7 @@ const App = () => {
 	const loginForm = () => (
 		<>
 			<h1>log in to the application</h1>
-      {loginNotification}
+			<Notification {...notification} />
 			<form onSubmit={handleLogin}>
 				<div>
 					username
@@ -134,7 +162,7 @@ const App = () => {
 	const blogList = () => (
 		<>
 			<h2>blogs</h2>
-      {createNotification}
+      <Notification {...notification}/>
 			<div>
 				<p>
 					{user.name} logged in <button onClick={handleLogout}> logout </button>
@@ -142,7 +170,7 @@ const App = () => {
 			</div>
 			{createNewBlogForm()}
 
-			{blogs.map((blog) => (
+			{blogsSorted.map((blog) => (
 				<Blog key={blog.id} blog={blog} handleLikeBlog={handleLikeBlog} />
 			))}
 		</>
