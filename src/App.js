@@ -71,6 +71,36 @@ const App = () => {
     setUser(null)
 	}
 
+	const handleDeleteBlog = async blog =>{
+		
+		if(!(window.confirm(`Remove blog ${blog.title} by ${blog.author}`)))
+		{
+			return
+		}
+
+		try{
+
+			await blogService.deleteBlog(blog)
+
+			setNotification({success:true, message:`blog ${blog.title} by ${blog.author} has been deleted`, display:true})
+      setTimeout(()=>{
+        setNotification({success:false, display:false, message:"" })
+      }, 5000)
+			
+			setBlogs(blogs.filter(item => {
+				return item.id === blog.id ? false : true
+			}))
+		}
+		catch(exception)
+		{
+			setNotification({success:false, display:true, message:`blog ${blog.title} by ${blog.author} could not be deleted`})
+
+			setTimeout(()=>{
+				setNotification({success:false, display:false, message:"" })
+			}, 5000)
+		}
+	}
+
 	const handleLikeBlog =  async blog =>{
 		try 
 		{
@@ -99,11 +129,14 @@ const App = () => {
 	const CreateBlog = async (blogToCreate) => {
 
 		try {
-      const newblog = await blogService.createBlog(
+      let newblog = await blogService.createBlog(
         {
 					...blogToCreate
         }
-      )
+			)
+			const user_info =  JSON.parse(window.localStorage.getItem("loggedBlogappUser"))
+			newblog.user = {id:newblog.user ,username: user_info.username, name: user_info.name}
+
 			blogFormRef.current.toggleVisibility()
       setBlogs(blogs.concat(newblog))
 
@@ -171,7 +204,7 @@ const App = () => {
 			{createNewBlogForm()}
 
 			{blogsSorted.map((blog) => (
-				<Blog key={blog.id} blog={blog} handleLikeBlog={handleLikeBlog} />
+				<Blog key={blog.id} blog={blog} handleLikeBlog={handleLikeBlog} handleDeleteBlog={handleDeleteBlog} />
 			))}
 		</>
 	)
