@@ -1,7 +1,8 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
-import { render } from '@testing-library/react'
+import { render, fireEvent } from '@testing-library/react'
 import Blog from './Blog'
+import { prettyDOM } from '@testing-library/dom'
 
 describe('<Blog /> tests', () => {
 
@@ -36,6 +37,16 @@ describe('<Blog /> tests', () => {
     expect(div_extendedInfo).toHaveTextContent('nowhere@noplace.now')
     expect(div_extendedInfo).toHaveTextContent('69')
 
+  })
+
+  test('component show aditional info after been clicked', () =>
+  {
+
+    const viewButton = component.getByText('view')
+    fireEvent.click(viewButton)
+
+    const div_extendedInfo = component.container.querySelector('.blogAditionalInfo')
+    expect(div_extendedInfo).not.toHaveStyle('display:none')
   })
 
 })
