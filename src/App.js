@@ -204,7 +204,7 @@ const App = () => {
       {createNewBlogForm()}
 
       {blogsSorted.map((blog) => (
-        <Blog key={blog.id} blog={blog} handleLikeBlog={handleLikeBlog} handleDeleteBlog={handleDeleteBlog} />
+        <Blog key={blog.id} blog={blog} handleLikeBlog={handleLikeBlog} handleDeleteBlog={handleDeleteBlog} username={user.username}/>
       ))}
     </>
   )

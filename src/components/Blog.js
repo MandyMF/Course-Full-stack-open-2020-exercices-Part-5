@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 
-const Blog = ({ blog, handleLikeBlog, handleDeleteBlog }) => {
+const Blog = ({ blog, handleLikeBlog, handleDeleteBlog, username }) => {
   const [visible, setVisible] = useState(false)
   const hideWhenVisible = { display: visible ? 'none' : '' }
   const showWhenVisible = { display: visible ? '' : 'none' }
-  const username = JSON.parse(window.localStorage.getItem('loggedBlogappUser')).username
+  //const username = JSON.parse(window.localStorage.getItem('loggedBlogappUser')).username
 
   const blogStyle = {
     paddingTop: 10,
@@ -19,14 +19,14 @@ const Blog = ({ blog, handleLikeBlog, handleDeleteBlog }) => {
   }
   return (
     <div style={blogStyle}>
-      <div style={hideWhenVisible}>
+      <div className="blogDefaultInfo"  style={hideWhenVisible}>
         {blog.title} {blog.author}{' '}
         <button style={hideWhenVisible} onClick={toggleVisibility}>
 					view
         </button>
       </div>
 
-      <div style={showWhenVisible}>
+      <div className="blogAditionalInfo" style={showWhenVisible}>
         <div>
           {blog.title} {blog.author}{' '}
           <button style={showWhenVisible} onClick={toggleVisibility}>
