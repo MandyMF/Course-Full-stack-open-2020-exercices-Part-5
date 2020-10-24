@@ -2,7 +2,6 @@ import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { render, fireEvent } from '@testing-library/react'
 import Blog from './Blog'
-import { prettyDOM } from '@testing-library/dom'
 
 describe('<Blog /> tests', () => {
 

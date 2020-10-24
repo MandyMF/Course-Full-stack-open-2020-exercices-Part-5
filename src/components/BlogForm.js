@@ -6,10 +6,10 @@ const BlogForm = (props) => {
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
 
-  const handleCreateBlog = async (event) => {
+  const handleCreateBlog = (event) => {
     event.preventDefault()
 
-    await props.CreateBlog({ title, author, url })
+    props.CreateBlog({ title, author, url })
 
     setTitle('')
     setAuthor('')
@@ -23,6 +23,7 @@ const BlogForm = (props) => {
         <div>
 					title:
           <input
+            id="title"
             value={title}
             name="Title"
             onChange={({ target }) => setTitle(target.value)}
@@ -31,6 +32,7 @@ const BlogForm = (props) => {
         <div>
 					author:
           <input
+            id="author"
             value={author}
             name="Author"
             onChange={({ target }) => setAuthor(target.value)}
@@ -39,6 +41,7 @@ const BlogForm = (props) => {
         <div>
 					url:
           <input
+            id="url"
             value={url}
             name="Url"
             onChange={({ target }) => setUrl(target.value)}
