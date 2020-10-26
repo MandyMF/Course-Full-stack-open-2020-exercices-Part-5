@@ -55,10 +55,27 @@ describe('Blog app', function() {
       cy.get('#url').type('myurl@lol.com')
 
       cy.get('#create-blog-button').click()
-      
-      cy.contains('a new blog new and fresh blog to test by borringman added')
-      cy.get('ul').contains('new and fresh blog to test')
 
+      cy.contains('a new blog new and fresh blog to test by borringman added')
+      cy.get('ul').contains('new and fresh blog to test borringman')
+    })
+
+    it('A user can like a blog', function() {
+      cy.createBlog({
+        title:'Blog to be liked',
+        author:'author of such blog',
+        url:'meeh@nop.com'
+      })
+
+      cy.contains('Blog to be liked author of such blog').find('button').as('viewButton')
+      cy.get('@viewButton').click()
+
+      cy.contains('Blog to be liked author of such blog').parent().as('focusDetailsBlog')
+
+      cy.get('@focusDetailsBlog').contains('likes 0').find('button').as('likeButton')
+      cy.get('@likeButton').click()
+
+      cy.get('@focusDetailsBlog').contains('likes 1')
     })
   })
 })
