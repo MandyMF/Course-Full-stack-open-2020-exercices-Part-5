@@ -181,7 +181,7 @@ const App = () => {
             onChange={({ target }) => setPassword(target.value)}
           />
         </div>
-        <button type="submit">login</button>
+        <button id="login-button" type="submit">login</button>
       </form>
     </>
   )
@@ -204,10 +204,11 @@ const App = () => {
         </p>
       </div>
       {createNewBlogForm()}
-
+      <ul style={{padding: '0'}}>
       {blogsSorted.map((blog) => (
         <Blog key={blog.id} blog={blog} handleLikeBlog={handleLikeBlog} handleDeleteBlog={handleDeleteBlog} username={user.username}/>
       ))}
+      </ul>
     </>
   )
 
