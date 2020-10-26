@@ -9,6 +9,13 @@ describe('Blog app', function() {
     }
     cy.request('POST', 'http://localhost:3001/api/users', user)
 
+    const user2= {
+      username: 'username2',
+      password: 'password2',
+      name:'name2'
+    }
+    cy.request('POST', 'http://localhost:3001/api/users', user2)
+
     cy.visit('http://localhost:3000')
   })
 
@@ -76,6 +83,43 @@ describe('Blog app', function() {
       cy.get('@likeButton').click()
 
       cy.get('@focusDetailsBlog').contains('likes 1')
+    })
+
+    it('User that create a blog can delete it', function() {
+      cy.createBlog({
+        title:'Blog to be liked',
+        author:'author of such blog',
+        url:'meeh@nop.com'
+      })
+
+      cy.contains('Blog to be liked author of such blog').find('button').as('viewButton')
+      cy.get('@viewButton').click()
+
+      cy.contains('Blog to be liked author of such blog').parent().as('focusDetailsBlog')
+
+      cy.get('@focusDetailsBlog').contains('remove').as('removeButton').should('exist')
+      cy.get('@removeButton').click()
+
+      cy.contains('blog Blog to be liked by author of such blog has been deleted').should('have.css', 'color', 'rgb(0, 128, 0)')
+      cy.contains('Blog to be liked author of such blog').should('not.exist')
+    })
+
+    it('User that create did not create the blog can not delete it', function() {
+      cy.createBlog({
+        title:'Blog to be liked',
+        author:'author of such blog',
+        url:'meeh@nop.com'
+      })
+
+      cy.get('#logout-button').click()
+      cy.login({username:"username2", password:"password2"})
+
+      cy.contains('Blog to be liked author of such blog').find('button').as('viewButton')
+      cy.get('@viewButton').click()
+
+      cy.contains('Blog to be liked author of such blog').parent().as('focusDetailsBlog')
+
+      cy.get('@focusDetailsBlog').contains('remove').should('not.exist')
     })
   })
 })
