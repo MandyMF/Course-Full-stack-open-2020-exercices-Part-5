@@ -121,5 +121,42 @@ describe('Blog app', function() {
 
       cy.get('@focusDetailsBlog').contains('remove').should('not.exist')
     })
+
+    it('Blogs are ordered according to likes', function() {
+
+      cy.createBlog({
+        title:'number 1',
+        author:'author 1',
+        url:'meeh@nop.com',
+        likes:65
+      })
+      cy.createBlog({
+        title:'number 2',
+        author:'author 1',
+        url:'meeh@nop.com',
+        likes:38
+      })
+      cy.createBlog({
+        title:'number 3',
+        author:'author 1',
+        url:'meeh@nop.com',
+        likes:100
+      })
+      cy.createBlog({
+        title:'number 4',
+        author:'author 1',
+        url:'meeh@nop.com',
+        likes:40
+      })
+
+      cy.get('ul').children().then(blogs => {
+        cy.wrap(blogs[0]).should('contain', 'number 3')
+        cy.wrap(blogs[1]).should('contain', 'number 1')
+        cy.wrap(blogs[2]).should('contain', 'number 4')
+        cy.wrap(blogs[3]).should('contain', 'number 2')
+      })
+
+
+    })
   })
 })
